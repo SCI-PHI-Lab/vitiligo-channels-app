@@ -1,13 +1,19 @@
 {
   "expo": {
-    "name": "vitiligo-filter-app",
+    "name": "Vitiligo Filter App",
     "slug": "vitiligo-filter-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "vitiligofilter",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to capture skin images for local image filtering.",
+        "NSPhotoLibraryUsageDescription": "This app accesses photos so you can upload skin images for filtering.",
+        "NSPhotoLibraryAddUsageDescription": "This app saves processed images to your photo library."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -16,10 +22,32 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow this app to select images from your photo library.",
+          "cameraPermission": "Allow this app to take photos with the camera.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow this app to access your photos.",
+          "savePhotosPermission": "Allow this app to save processed images."
+        }
+      ]
+    ]
   }
 }
