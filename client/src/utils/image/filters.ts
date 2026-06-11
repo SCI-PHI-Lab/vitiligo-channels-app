@@ -41,3 +41,8 @@ export const FILTERS: FilterPreset[] = [
     temperature: 0,
   },
 ];
+
+export type FilterProcessingMode = 'preview' | 'export';
+
+export const PREVIEW_MAX_SIZE = 600;
+export const EXPORT_MAX_SIZE = 4096;
