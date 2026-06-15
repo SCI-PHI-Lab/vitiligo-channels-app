@@ -1,25 +1,40 @@
-import { Image, Text, View } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useState } from 'react';
+import { Image, ScrollView, Text, View } from 'react-native';
+import { VitiligoFilterControls } from '~/components/VilitigoFilterControls';
+import { DEFAULT_BW_VITILIGO_FILTER } from '~/utils/image/vitiligoFilterModel';
+import { useDebouncedValue } from '~/hooks/useDebouncedValue';
 
-import type { RootStackParamList } from 'src/RootNavigator';
+type Props = {
+  imageUri: string;
+};
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
+export function FilterEditScreen({ imageUri }: Props) {
+  const [filterParams, setFilterParams] = useState(DEFAULT_BW_VITILIGO_FILTER);
+  const debouncedFilterParams = useDebouncedValue(filterParams, 100);
 
-export function FilterEditScreen({ route }: Props) {
-  const { imageUri } = route.params;
+  // Later:
+  // const previewUri = useProcessedPreview(imageUri, debouncedFilterParams);
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 16 }}>
-      <Text>Editor screen</Text>
-
-      {imageUri ? (
+    <ScrollView contentContainerStyle={{ padding: 16, gap: 20 }}>
+      <View>
+        <Text>Original</Text>
         <Image
           source={{ uri: imageUri }}
-          style={{ width: '100%', height: 300, resizeMode: 'contain' }}
+          style={{ width: '100%', height: 320, resizeMode: 'contain' }}
         />
-      ) : (
-        <Text>No image selected yet.</Text>
-      )}
-    </View>
+      </View>
+
+      <View>
+        <Text>Filtered Preview</Text>
+        {/* Replace with processed preview URI once native processor is wired */}
+        <Image
+          source={{ uri: imageUri }}
+          style={{ width: '100%', height: 320, resizeMode: 'contain' }}
+        />
+      </View>
+
+      <VitiligoFilterControls value={filterParams} onChange={setFilterParams} />
+    </ScrollView>
   );
 }
