@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { HomeScreen } from '~/screens/HomeScreen';
 import { CameraScreen } from '~/screens/CameraScreen';
-import { FilterEditScreen } from './screens/FilterEditScreen';
+import { FilterEditScreen } from '~/screens/FilterEditScreen';
 import { ImageViewScreen } from '~/screens/ImageViewScreen';
 
 export type RootStackParamList = {

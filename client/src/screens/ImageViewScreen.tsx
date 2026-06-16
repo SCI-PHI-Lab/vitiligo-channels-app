@@ -1,7 +1,7 @@
 import { Image, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import type { RootStackParamList } from 'src/RootNavigator';
+import type { RootStackParamList } from '~/RootNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'View'>;
 

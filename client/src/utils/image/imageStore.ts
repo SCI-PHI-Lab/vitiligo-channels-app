@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { FilterPreset } from './filters';
-import { FILTERS } from './filters';
+import { DEFAULT_FILTER } from './filters';
 
 type ImageState = {
   inputImageUri: string | null;
@@ -14,7 +14,7 @@ type ImageState = {
 export const useImageStore = create<ImageState>(set => ({
   inputImageUri: null,
   processedImageUri: null,
-  selectedFilter: FILTERS[0]!,
+  selectedFilter: DEFAULT_FILTER,
   setInputImageUri: uri => set({ inputImageUri: uri }),
   setProcessedImageUri: uri => set({ processedImageUri: uri }),
   setSelectedFilter: filter => set({ selectedFilter: filter }),

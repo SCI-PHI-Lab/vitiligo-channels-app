@@ -7,15 +7,17 @@ export type FilterPreset = {
   temperature: number;
 };
 
+export const DEFAULT_FILTER: FilterPreset = {
+  id: 'natural',
+  name: 'Natural',
+  brightness: 0,
+  contrast: 1,
+  saturation: 1,
+  temperature: 0,
+};
+
 export const FILTERS: FilterPreset[] = [
-  {
-    id: 'natural',
-    name: 'Natural',
-    brightness: 0,
-    contrast: 1,
-    saturation: 1,
-    temperature: 0,
-  },
+  DEFAULT_FILTER,
   {
     id: 'contrast-enhance',
     name: 'Contrast Enhance',
