@@ -1,9 +1,29 @@
 import * as ImagePicker from 'expo-image-picker';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, View } from 'react-native';
+
+import type { RootStackParamList } from '~/RootNavigator';
 import { useImageStore } from '~/utils/image/imageStore';
 
-export function HomeScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+export function HomeScreen({ navigation }: Props) {
   const setInputImageUri = useImageStore(s => s.setInputImageUri);
+
+  const openEditor = (result: ImagePicker.ImagePickerResult) => {
+    if (result.canceled) {
+      return;
+    }
+
+    const imageUri = result.assets[0]?.uri;
+
+    if (!imageUri) {
+      return;
+    }
+
+    setInputImageUri(imageUri);
+    navigation.navigate('Edit', { imageUri });
+  };
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -12,9 +32,7 @@ export function HomeScreen() {
       allowsEditing: false,
     });
 
-    if (!result.canceled) {
-      setInputImageUri(result.assets[0]!.uri);
-    }
+    openEditor(result);
   };
 
   const takeImage = async () => {
@@ -24,9 +42,7 @@ export function HomeScreen() {
       allowsEditing: false,
     });
 
-    if (!result.canceled) {
-      setInputImageUri(result.assets[0]!.uri);
-    }
+    openEditor(result);
   };
 
   return (
