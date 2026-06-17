@@ -24,12 +24,22 @@ function getScaledSize(
   maxWidth: number,
   maxHeight: number
 ) {
+  if (width <= 0 || height <= 0 || maxWidth <= 0 || maxHeight <= 0) {
+    throw new Error('Image and canvas dimensions must be greater than zero.');
+  }
+
   const ratio = Math.min(maxWidth / width, maxHeight / height, 1);
 
   return {
-    width: Math.round(width * ratio),
-    height: Math.round(height * ratio),
+    width: Math.max(1, Math.round(width * ratio)),
+    height: Math.max(1, Math.round(height * ratio)),
   };
+}
+
+function assertFiniteNumber(value: number, name: string): void {
+  if (!Number.isFinite(value)) {
+    throw new Error(`${name} must be a finite number.`);
+  }
 }
 
 export async function processImageWithCanvas(
@@ -42,13 +52,25 @@ export async function processImageWithCanvas(
   const maxHeight = options.maxHeight ?? 900;
   const jpegQuality = options.jpegQuality ?? 0.95;
 
+  assertFiniteNumber(maxWidth, 'maxWidth');
+  assertFiniteNumber(maxHeight, 'maxHeight');
+  assertFiniteNumber(jpegQuality, 'jpegQuality');
+
+  if (jpegQuality < 0 || jpegQuality > 1) {
+    throw new Error('jpegQuality must be between 0 and 1.');
+  }
+
   const image = new CanvasImage(canvas);
+  const imageLoadPromise = waitForCanvasImageLoad(image);
   image.src = imageUri;
 
-  await waitForCanvasImageLoad(image);
+  await imageLoadPromise;
 
   const sourceWidth = Number(image.width);
   const sourceHeight = Number(image.height);
+
+  assertFiniteNumber(sourceWidth, 'sourceWidth');
+  assertFiniteNumber(sourceHeight, 'sourceHeight');
 
   const scaled = getScaledSize(sourceWidth, sourceHeight, maxWidth, maxHeight);
 
