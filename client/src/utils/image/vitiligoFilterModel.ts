@@ -23,3 +23,8 @@ export const DEFAULT_BW_VITILIGO_FILTER: BWVitiligoFilterParams = {
   },
   lightnessRatio: 0.2,
 };
+
+export type FilterProcessingMode = 'preview' | 'export';
+
+export const PREVIEW_MAX_SIZE = 1024;
+export const EXPORT_MAX_SIZE = 4096;

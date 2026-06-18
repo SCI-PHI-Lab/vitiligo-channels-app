@@ -52,7 +52,7 @@ export function CameraScreen() {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive
-        pixelFormat='yuv'
+        pixelFormat='native'
         onFrame={(frame, render) => {
           'worklet';
 

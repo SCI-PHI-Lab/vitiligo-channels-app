@@ -13,9 +13,11 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '~/RootNavigator';
 import { VitiligoFilterControls } from '~/components/VitiligoFilterControls';
 import { useDebouncedValue } from '~/hooks/useDebouncedValue';
-import { PREVIEW_MAX_SIZE } from '~/utils/image/filters';
 import { processImageWithCanvas } from '~/utils/image/processImageWithCanvas';
-import { DEFAULT_BW_VITILIGO_FILTER } from '~/utils/image/vitiligoFilterModel';
+import {
+  DEFAULT_BW_VITILIGO_FILTER,
+  PREVIEW_MAX_SIZE,
+} from '~/utils/image/vitiligoFilterModel';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
 

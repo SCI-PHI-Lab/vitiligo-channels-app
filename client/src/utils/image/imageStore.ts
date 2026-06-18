@@ -1,20 +1,22 @@
 import { create } from 'zustand';
-import type { FilterPreset } from './filters';
-import { DEFAULT_FILTER } from './filters';
+import {
+  BWVitiligoFilterParams,
+  DEFAULT_BW_VITILIGO_FILTER,
+} from '~/utils/image/vitiligoFilterModel';
 
 type ImageState = {
   inputImageUri: string | null;
   processedImageUri: string | null;
-  selectedFilter: FilterPreset;
+  selectedFilter: BWVitiligoFilterParams;
   setInputImageUri: (uri: string) => void;
   setProcessedImageUri: (uri: string) => void;
-  setSelectedFilter: (filter: FilterPreset) => void;
+  setSelectedFilter: (filter: BWVitiligoFilterParams) => void;
 };
 
 export const useImageStore = create<ImageState>(set => ({
   inputImageUri: null,
   processedImageUri: null,
-  selectedFilter: DEFAULT_FILTER,
+  selectedFilter: DEFAULT_BW_VITILIGO_FILTER,
   setInputImageUri: uri => set({ inputImageUri: uri }),
   setProcessedImageUri: uri => set({ processedImageUri: uri }),
   setSelectedFilter: filter => set({ selectedFilter: filter }),

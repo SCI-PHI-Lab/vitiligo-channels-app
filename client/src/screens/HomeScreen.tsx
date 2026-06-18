@@ -10,7 +10,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 export function HomeScreen({ navigation }: Props) {
   const setInputImageUri = useImageStore(s => s.setInputImageUri);
 
-  const openEditor = (result: ImagePicker.ImagePickerResult) => {
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 1,
+      allowsEditing: false,
+      allowsMultipleSelection: false,
+    });
+
     if (result.canceled) {
       return;
     }
@@ -25,24 +32,8 @@ export function HomeScreen({ navigation }: Props) {
     navigation.navigate('Edit', { imageUri });
   };
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 1,
-      allowsEditing: false,
-    });
-
-    openEditor(result);
-  };
-
   const takeImage = async () => {
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
-      quality: 1,
-      allowsEditing: false,
-    });
-
-    openEditor(result);
+    navigation.navigate('Camera');
   };
 
   return (
