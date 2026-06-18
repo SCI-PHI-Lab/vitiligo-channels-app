@@ -25,9 +25,7 @@ export function RootNavigator() {
     <NavigationContainer>
       <Navigator
         initialRouteName='Home'
-        screenOptions={{
-          headerTitleAlign: 'center',
-        }}
+        screenOptions={{ headerTitleAlign: 'center' }}
       >
         <Screen
           name='Home'

@@ -54,9 +54,10 @@ export function CameraScreen() {
         isActive
         pixelFormat='yuv'
         onFrame={(frame, render) => {
+          'worklet';
+
           render(({ frameTexture, canvas }) => {
             canvas.drawImage(frameTexture, 0, 0);
-            // Add Skia filter/drawing here.
           });
 
           frame.dispose();
