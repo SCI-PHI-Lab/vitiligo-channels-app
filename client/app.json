@@ -12,8 +12,10 @@
       "infoPlist": {
         "NSCameraUsageDescription": "This app uses the camera to capture skin images for local image filtering.",
         "NSPhotoLibraryUsageDescription": "This app accesses photos so you can upload skin images for filtering.",
-        "NSPhotoLibraryAddUsageDescription": "This app saves processed images to your photo library."
-      }
+        "NSPhotoLibraryAddUsageDescription": "This app saves processed images to your photo library.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.thebitspud.vitiligofilters"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,9 +26,13 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "CAMERA",
-        "READ_MEDIA_IMAGES",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
       ]
     },
     "web": {
@@ -48,6 +54,11 @@
           "savePhotosPermission": "Allow this app to save processed images."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c242a567-d531-4e7b-9a8e-0fa19de6ba9b"
+      }
+    }
   }
 }
