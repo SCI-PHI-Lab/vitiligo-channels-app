@@ -1,6 +1,7 @@
 import { Skia } from '@shopify/react-native-skia';
 
-export const vitiligoShader = Skia.RuntimeEffect.Make(`
+// language=GLSL
+const bwVitiligoShaderSource = `
 uniform shader image;
 
 uniform float redWeight;
@@ -49,8 +50,6 @@ half4 main(float2 xy) {
       (g - yellow) * greenWeight;
   }
 
-  // MVP approximation of OpenCV LAB L channel.
-  // Much faster and suitable for live preview.
   float lightness = dot(
     float3(r0, g0, b0),
     float3(0.2126, 0.7152, 0.0722)
@@ -61,4 +60,6 @@ half4 main(float2 xy) {
 
   return half4(outValue, outValue, outValue, color.a);
 }
-`);
+`;
+
+export const bwVitiligoShader = Skia.RuntimeEffect.Make(bwVitiligoShaderSource);

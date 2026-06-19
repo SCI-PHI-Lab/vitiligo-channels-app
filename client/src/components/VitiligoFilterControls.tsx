@@ -22,21 +22,18 @@ export function VitiligoFilterControls({ value, onChange }: Props) {
       {CHANNELS.map(([key, label]) => (
         <View key={key}>
           <Text>
-            {label}: {value.weights[key]}
+            {label}: {value[key]}
           </Text>
 
           <Slider
             minimumValue={-300}
             maximumValue={300}
             step={1}
-            value={value.weights[key]}
+            value={value[key]}
             onValueChange={nextValue => {
               onChange({
                 ...value,
-                weights: {
-                  ...value.weights,
-                  [key]: nextValue,
-                },
+                [key]: nextValue,
               });
             }}
           />

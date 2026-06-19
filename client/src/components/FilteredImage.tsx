@@ -6,9 +6,8 @@ import {
   Shader,
   useImage,
 } from '@shopify/react-native-skia';
-
-import { vitiligoShader } from '~/utils/image/vitiligoShader';
 import type { BWVitiligoFilterParams } from '~/utils/image/vitiligoFilterModel';
+import { bwVitiligoShader } from '~/utils/shader/bwVitiligoShader';
 
 type Props = {
   imageUri: string;
@@ -22,25 +21,25 @@ export function FilteredImage({ imageUri, filter, width, height }: Props) {
 
   const uniforms = useMemo(
     () => ({
-      redWeight: filter.weights.red / 100,
-      yellowWeight: filter.weights.yellow / 100,
-      greenWeight: filter.weights.green / 100,
-      cyanWeight: filter.weights.cyan / 100,
-      blueWeight: filter.weights.blue / 100,
-      magentaWeight: filter.weights.magenta / 100,
+      redWeight: filter.red / 100,
+      yellowWeight: filter.yellow / 100,
+      greenWeight: filter.green / 100,
+      cyanWeight: filter.cyan / 100,
+      blueWeight: filter.blue / 100,
+      magentaWeight: filter.magenta / 100,
       lightnessRatio: filter.lightnessRatio,
     }),
     [filter]
   );
 
-  if (!vitiligoShader || !image) {
+  if (!bwVitiligoShader || !image) {
     return null;
   }
 
   return (
     <Canvas style={{ width, height }}>
       <Fill>
-        <Shader source={vitiligoShader} uniforms={uniforms}>
+        <Shader source={bwVitiligoShader} uniforms={uniforms}>
           <ImageShader
             image={image}
             fit='contain'

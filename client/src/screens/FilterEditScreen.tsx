@@ -43,7 +43,9 @@ export function FilterEditScreen({ route }: Props) {
       try {
         setPrepareError(null);
 
-        const normalizedUri = await normalizeImage(imageUri, PREVIEW_MAX_SIZE);
+        const normalizedUri = await normalizeImage(imageUri, {
+          maxWidth: PREVIEW_MAX_SIZE,
+        });
 
         if (isCurrent) {
           setSkiaImageUri(normalizedUri);
