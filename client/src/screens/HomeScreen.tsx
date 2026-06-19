@@ -16,6 +16,7 @@ export function HomeScreen({ navigation }: Props) {
       quality: 1,
       allowsEditing: false,
       allowsMultipleSelection: false,
+      exif: false,
     });
 
     if (result.canceled) {
@@ -32,14 +33,14 @@ export function HomeScreen({ navigation }: Props) {
     navigation.navigate('Edit', { imageUri });
   };
 
-  const takeImage = async () => {
+  const takePhoto = async () => {
     navigation.navigate('Camera');
   };
 
   return (
     <View style={{ gap: 12, padding: 24 }}>
       <Button title='Upload image' onPress={pickImage} />
-      <Button title='Take photo' onPress={takeImage} />
+      <Button title='Take photo' onPress={takePhoto} />
     </View>
   );
 }

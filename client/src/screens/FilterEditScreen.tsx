@@ -1,97 +1,68 @@
-import { useEffect, useRef, useState } from 'react';
-import Canvas from 'react-native-canvas';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
   ScrollView,
-  StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import type { RootStackParamList } from '~/RootNavigator';
 import { VitiligoFilterControls } from '~/components/VitiligoFilterControls';
-import { useDebouncedValue } from '~/hooks/useDebouncedValue';
-import { processImageWithCanvas } from '~/utils/image/processImageWithCanvas';
+
 import {
   DEFAULT_BW_VITILIGO_FILTER,
+  type BWVitiligoFilterParams,
   PREVIEW_MAX_SIZE,
 } from '~/utils/image/vitiligoFilterModel';
+import { normalizeImage } from '~/utils/image/normalizeImage';
+import { FilteredImage } from '~/components/FilteredImage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
 
 export function FilterEditScreen({ route }: Props) {
   const { imageUri } = route.params;
-  const [filterParams, setFilterParams] = useState(DEFAULT_BW_VITILIGO_FILTER);
-  const [processingCanvas, setProcessingCanvas] = useState<Canvas | null>(null);
-  const [previewUri, setPreviewUri] = useState<string | null>(null);
-  const [previewError, setPreviewError] = useState<string | null>(null);
-  const [isProcessingPreview, setIsProcessingPreview] = useState(false);
-  const debouncedFilterParams = useDebouncedValue(filterParams, 100);
-  const previewRequestId = useRef(0);
-  const processingQueue = useRef<Promise<void>>(Promise.resolve());
+  const { width: screenWidth } = useWindowDimensions();
+
+  const previewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
+  const previewHeight = 420;
+
+  const [filterParams, setFilterParams] = useState<BWVitiligoFilterParams>(
+    DEFAULT_BW_VITILIGO_FILTER
+  );
+
+  const [skiaImageUri, setSkiaImageUri] = useState<string | null>(null);
+  const [prepareError, setPrepareError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!processingCanvas) {
-      return;
-    }
-
     let isCurrent = true;
-    const requestId = previewRequestId.current + 1;
-    previewRequestId.current = requestId;
 
-    setIsProcessingPreview(true);
-    setPreviewError(null);
+    async function prepareImage() {
+      try {
+        setPrepareError(null);
 
-    const processPreview = async () => {
-      await processingQueue.current;
+        const normalizedUri = await normalizeImage(imageUri, PREVIEW_MAX_SIZE);
 
-      if (!isCurrent || previewRequestId.current !== requestId) {
-        return;
-      }
-
-      const nextPreviewUri = await processImageWithCanvas(
-        processingCanvas,
-        imageUri,
-        debouncedFilterParams,
-        {
-          maxWidth: PREVIEW_MAX_SIZE,
-          maxHeight: PREVIEW_MAX_SIZE,
-          jpegQuality: 0.9,
+        if (isCurrent) {
+          setSkiaImageUri(normalizedUri);
         }
-      );
-
-      if (isCurrent && previewRequestId.current === requestId) {
-        setPreviewUri(nextPreviewUri);
-      }
-    };
-
-    const previewTask = processPreview()
-      .catch(error => {
-        if (isCurrent && previewRequestId.current === requestId) {
-          setPreviewError(
-            error instanceof Error
-              ? error.message
-              : 'Could not render filtered preview.'
+      } catch (error) {
+        if (isCurrent) {
+          setPrepareError(
+            error instanceof Error ? error.message : 'Could not prepare image.'
           );
         }
-      })
-      .finally(() => {
-        if (isCurrent && previewRequestId.current === requestId) {
-          setIsProcessingPreview(false);
-        }
-      });
+      }
+    }
 
-    processingQueue.current = previewTask.then(
-      () => undefined,
-      () => undefined
-    );
+    void prepareImage();
 
     return () => {
       isCurrent = false;
     };
-  }, [debouncedFilterParams, imageUri, processingCanvas]);
+  }, [imageUri]);
 
   return (
     <ScrollView contentContainerStyle={{ padding: 16, gap: 20 }}>
@@ -99,31 +70,42 @@ export function FilterEditScreen({ route }: Props) {
         <Text>Original</Text>
         <Image
           source={{ uri: imageUri }}
-          style={{ width: '100%', height: 320, resizeMode: 'contain' }}
+          style={{
+            width: '100%',
+            height: 320,
+            resizeMode: 'contain',
+            backgroundColor: '#eee',
+          }}
         />
       </View>
 
       <View>
         <Text>Filtered Preview</Text>
-        <Image
-          source={{ uri: previewUri ?? imageUri }}
-          style={{ width: '100%', height: 320, resizeMode: 'contain' }}
-        />
-        {isProcessingPreview ? <ActivityIndicator /> : null}
-        {previewError ? <Text>{previewError}</Text> : null}
+
+        {skiaImageUri ? (
+          <FilteredImage
+            imageUri={skiaImageUri}
+            filter={filterParams}
+            width={previewWidth}
+            height={previewHeight}
+          />
+        ) : (
+          <View
+            style={{
+              height: previewHeight,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#eee',
+            }}
+          >
+            <ActivityIndicator />
+          </View>
+        )}
+
+        {prepareError ? <Text>{prepareError}</Text> : null}
       </View>
 
       <VitiligoFilterControls value={filterParams} onChange={setFilterParams} />
-      <Canvas ref={setProcessingCanvas} style={styles.processingCanvas} />
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  processingCanvas: {
-    height: 1,
-    opacity: 0,
-    position: 'absolute',
-    width: 1,
-  },
-});
