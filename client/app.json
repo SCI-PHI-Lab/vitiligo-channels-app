@@ -1,0 +1,64 @@
+{
+  "expo": {
+    "name": "Vitiligo Filter App",
+    "slug": "vitiligo-filter-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "vitiligofilter",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app uses the camera to capture skin images for local image filtering.",
+        "NSPhotoLibraryUsageDescription": "This app accesses photos so you can upload skin images for filtering.",
+        "NSPhotoLibraryAddUsageDescription": "This app saves processed images to your photo library.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.thebitspud.vitiligofilters"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_MEDIA_IMAGES",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+        "android.permission.READ_MEDIA_VIDEO",
+        "android.permission.READ_MEDIA_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow this app to select images from your photo library.",
+          "cameraPermission": "Allow this app to take photos with the camera.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow this app to access your photos.",
+          "savePhotosPermission": "Allow this app to save processed images."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "c242a567-d531-4e7b-9a8e-0fa19de6ba9b"
+      }
+    }
+  }
+}
