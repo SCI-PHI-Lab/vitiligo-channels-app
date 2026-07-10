@@ -5,6 +5,14 @@ type NormalizeImageOptions = {
   compress?: number;
 };
 
+/**
+ * Normalizes an image to the specified size, optionally compressing it
+ *
+ * @param {string} imageUri - The URI of the image to normalize
+ * @param {NormalizeImageOptions} options - Parameters used in normalization
+ *
+ * @return {Promise<string>} Resolves to the newly generated URI of the normalized image
+ */
 export async function normalizeImage(
   imageUri: string,
   options: NormalizeImageOptions

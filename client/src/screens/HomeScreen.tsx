@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button, View } from 'react-native';
 
-import type { RootStackParamList } from '~/RootNavigator';
+import type { RootStackParamList } from '~/screens/RootNavigator';
 import { useImageStore } from '~/utils/image/imageStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;

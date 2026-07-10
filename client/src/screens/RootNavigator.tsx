@@ -20,6 +20,7 @@ export type RootStackParamList = {
 
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
+/** Base navigation component that specifies all screens and their properties */
 export function RootNavigator() {
   return (
     <NavigationContainer>

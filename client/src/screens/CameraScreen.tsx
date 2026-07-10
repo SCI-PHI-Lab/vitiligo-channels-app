@@ -54,6 +54,7 @@ export function CameraScreen() {
         isActive
         pixelFormat='native'
         onFrame={(frame, render) => {
+          // Worklet directive enables rendering in separate UI thread, improving performance
           'worklet';
 
           render(({ frameTexture, canvas }) => {

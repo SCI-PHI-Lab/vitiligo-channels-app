@@ -49,7 +49,8 @@ half4 main(float2 xy) {
       (r - yellow) * redWeight +
       (g - yellow) * greenWeight;
   }
-
+  
+  // Coefficients from Rec. 709 relative luminance formula
   float lightness = dot(
     float3(r0, g0, b0),
     float3(0.2126, 0.7152, 0.0722)
@@ -62,4 +63,8 @@ half4 main(float2 xy) {
 }
 `;
 
+/**
+ * Compiled SKSL shader that converts RGB images to grayscale outputs with customizable
+ * color channel weighting, specifically designed and tuned for vitiligo visualization
+ */
 export const bwVitiligoShader = Skia.RuntimeEffect.Make(bwVitiligoShaderSource);
