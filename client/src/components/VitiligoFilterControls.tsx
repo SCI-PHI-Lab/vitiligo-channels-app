@@ -1,58 +1,62 @@
 import { Text, View } from 'react-native';
 import Slider from '@react-native-community/slider';
-import type { BWVitiligoFilterParams } from '~/utils/image/vitiligoFilterModel';
+import {
+  BWVitiligoFilterParams,
+  DEFAULT_BW_VITILIGO_FILTER,
+} from '~/types/vitiligoFilterModel';
+import { useEffect, useState } from 'react';
 
-type Props = {
-  value: BWVitiligoFilterParams;
-  onChange: (value: BWVitiligoFilterParams) => void;
+type VitiligoFilterControlsProps = {
+  filterParams: BWVitiligoFilterParams;
+  setFilterParams: (value: BWVitiligoFilterParams) => void;
 };
 
-const CHANNELS = [
-  ['red', 'Red'],
-  ['yellow', 'Yellow'],
-  ['green', 'Green'],
-  ['cyan', 'Cyan'],
-  ['blue', 'Blue'],
-  ['magenta', 'Magenta'],
-] as const;
+export function VitiligoFilterControls({
+  filterParams,
+  setFilterParams,
+}: VitiligoFilterControlsProps) {
+  const [strength, setStrength] = useState(100);
 
-export function VitiligoFilterControls({ value, onChange }: Props) {
+  useEffect(() => {
+    const multiplier = strength * 0.01;
+    const baseline = DEFAULT_BW_VITILIGO_FILTER;
+
+    setFilterParams({
+      ...filterParams,
+      redWeight: baseline.redWeight * multiplier,
+      yellowWeight: baseline.yellowWeight * multiplier,
+      greenWeight: baseline.greenWeight * multiplier,
+      cyanWeight: baseline.cyanWeight * multiplier,
+      blueWeight: baseline.blueWeight * multiplier,
+      magentaWeight: baseline.magentaWeight * multiplier,
+    });
+  }, [strength]);
+
   return (
     <View style={{ gap: 16 }}>
-      {CHANNELS.map(([key, label]) => (
-        <View key={key}>
-          <Text>
-            {label}: {value[key]}
-          </Text>
-
-          <Slider
-            minimumValue={-300}
-            maximumValue={300}
-            step={1}
-            value={value[key]}
-            onValueChange={nextValue => {
-              onChange({
-                ...value,
-                [key]: nextValue,
-              });
-            }}
-          />
-        </View>
-      ))}
+      <Text>Strength: {strength}%</Text>
+      <Slider
+        minimumValue={-100}
+        maximumValue={200}
+        step={1}
+        value={strength}
+        onValueChange={nextValue => setStrength(nextValue)}
+      />
 
       <View>
         <Text>
-          Lightness Contribution: {Math.round(value.lightnessRatio * 100)}%
+          Lightness Contribution:{' '}
+          {Math.round(filterParams.lightnessRatio * 100)}%
         </Text>
 
         <Slider
           minimumValue={0}
           maximumValue={1}
           step={0.01}
-          value={value.lightnessRatio}
+          value={filterParams.lightnessRatio}
           onValueChange={nextValue => {
-            onChange({
-              ...value,
+            setFilterParams({
+              ...filterParams,
               lightnessRatio: nextValue,
             });
           }}

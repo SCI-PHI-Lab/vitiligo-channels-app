@@ -107,7 +107,10 @@ export function FilterEditScreen({ route }: Props) {
         {prepareError ? <Text>{prepareError}</Text> : null}
       </View>
 
-      <VitiligoFilterControls value={filterParams} onChange={setFilterParams} />
+      <VitiligoFilterControls
+        filterParams={filterParams}
+        setFilterParams={setFilterParams}
+      />
     </ScrollView>
   );
 }
