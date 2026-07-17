@@ -54,7 +54,8 @@
           "photosPermission": "Allow this app to access your photos.",
           "savePhotosPermission": "Allow this app to save processed images."
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "extra": {
       "eas": {
