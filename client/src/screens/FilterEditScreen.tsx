@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import ViewShot, { captureRef } from 'react-native-view-shot';
+import ViewShot, { captureRef, ViewShotRef } from 'react-native-view-shot';
 import type { RootStackParamList } from '~/screens/RootNavigator';
 import { VitiligoFilterControls } from '~/components/VitiligoFilterControls';
 import {
@@ -28,7 +28,7 @@ export function FilterEditScreen({ route }: Props) {
   const { imageUri } = route.params;
   const { width: screenWidth } = useWindowDimensions();
 
-  const previewRef = useRef<ViewShot>(null);
+  const previewRef = useRef<ViewShotRef>(null);
 
   const previewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
   const previewHeight = 420;

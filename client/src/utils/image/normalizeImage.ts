@@ -1,14 +1,12 @@
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
+import {
+  ImageManipulator,
+  ImageResult,
+  SaveFormat,
+} from 'expo-image-manipulator';
 
 type NormalizeImageOptions = {
   maxWidth: number;
   compress?: number;
-};
-
-type NormalizeImageOutput = {
-  uri: string;
-  width: number;
-  height: number;
 };
 
 /**
@@ -22,17 +20,15 @@ type NormalizeImageOutput = {
 export async function normalizeImage(
   imageUri: string,
   options: NormalizeImageOptions
-): Promise<NormalizeImageOutput> {
+): Promise<ImageResult> {
   const { maxWidth, compress = 1 } = options;
 
   const imageRef = await ImageManipulator.manipulate(imageUri)
     .resize({ width: maxWidth })
     .renderAsync();
 
-  const result = await imageRef.saveAsync({
+  return await imageRef.saveAsync({
     compress,
     format: SaveFormat.JPEG,
   });
-
-  return result.uri;
 }
