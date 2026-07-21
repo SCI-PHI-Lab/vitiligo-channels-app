@@ -6,17 +6,27 @@ type SaveImageResult = {
   uri: string;
 };
 
+function assertLocalFileUri(uri: string): void {
+  if (!uri.startsWith('file://')) {
+    throw new Error(
+      `Expected a local file:// URI before saving, received: ${uri}`
+    );
+  }
+}
+
 export async function requestMediaLibrarySavePermission(): Promise<void> {
   const permission = await requestPermissionsAsync(true);
 
   if (permission.status !== 'granted') {
-    throw new Error('Photo library permission was not granted.');
+    throw new Error('Photo library save permission was not granted.');
   }
 }
 
 export async function saveImageToCameraRoll(
   imageUri: string
 ): Promise<SaveImageResult> {
+  assertLocalFileUri(imageUri);
+
   await requestMediaLibrarySavePermission();
 
   const asset = await Asset.create(imageUri);
@@ -28,6 +38,8 @@ export async function saveImageToCameraRoll(
 }
 
 export async function shareImage(imageUri: string): Promise<void> {
+  assertLocalFileUri(imageUri);
+
   const isAvailable = await isAvailableAsync();
 
   if (!isAvailable) {
