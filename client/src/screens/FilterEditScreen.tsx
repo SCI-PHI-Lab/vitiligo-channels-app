@@ -26,20 +26,26 @@ import { saveImageToCameraRoll, shareImage } from '~/utils/image/exportImage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
 
+type PreviewSize = {
+  width: number;
+  height: number;
+};
+
 export function FilterEditScreen({ route }: Props) {
   const { imageUri } = route.params;
   const { width: screenWidth } = useWindowDimensions();
 
   const previewRef = useRef<ViewShotRef>(null);
 
-  const previewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
-  const previewHeight = 420;
+  const maxPreviewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
+  const maxPreviewHeight = PREVIEW_MAX_SIZE;
 
   const [filterParams, setFilterParams] = useState<BWVitiligoFilterParams>(
     DEFAULT_BW_VITILIGO_FILTER
   );
 
   const [skiaImageUri, setSkiaImageUri] = useState<string | null>(null);
+  const [previewSize, setPreviewSize] = useState<PreviewSize | null>(null);
   const [prepareError, setPrepareError] = useState<string | null>(null);
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -53,6 +59,7 @@ export function FilterEditScreen({ route }: Props) {
       try {
         setIsPreparingImage(true);
         setPrepareError(null);
+        setPreviewSize(null);
 
         const normalizedImage = await normalizeImage(imageUri, {
           maxWidth: PREVIEW_MAX_SIZE,
@@ -81,6 +88,48 @@ export function FilterEditScreen({ route }: Props) {
       isCurrent = false;
     };
   }, [imageUri]);
+
+  useEffect(() => {
+    if (!skiaImageUri) {
+      return;
+    }
+
+    let isCurrent = true;
+
+    Image.getSize(
+      skiaImageUri,
+      (width, height) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        const scale = Math.min(
+          maxPreviewWidth / width,
+          maxPreviewHeight / height,
+          1
+        );
+
+        setPreviewSize({
+          width: Math.round(width * scale),
+          height: Math.round(height * scale),
+        });
+      },
+      () => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setPreviewSize({
+          width: maxPreviewWidth,
+          height: maxPreviewHeight,
+        });
+      }
+    );
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [skiaImageUri, maxPreviewWidth, maxPreviewHeight]);
 
   const captureFilteredPreview = async (): Promise<string> => {
     if (!previewRef.current) {
@@ -148,7 +197,7 @@ export function FilterEditScreen({ route }: Props) {
             pressed ? styles.previewPressed : null,
           ]}
         >
-          {skiaImageUri ? (
+          {skiaImageUri && previewSize ? (
             <>
               <ViewShot
                 ref={previewRef}
@@ -159,14 +208,18 @@ export function FilterEditScreen({ route }: Props) {
                 }}
                 style={[
                   styles.filteredCaptureLayer,
+                  {
+                    width: previewSize.width,
+                    height: previewSize.height,
+                  },
                   isShowingOriginal ? styles.hiddenLayer : null,
                 ]}
               >
                 <FilteredImage
                   imageUri={skiaImageUri}
                   filter={filterParams}
-                  width={previewWidth}
-                  height={previewHeight}
+                  width={previewSize.width}
+                  height={previewSize.height}
                 />
               </ViewShot>
 
@@ -176,8 +229,8 @@ export function FilterEditScreen({ route }: Props) {
                   style={[
                     styles.originalImage,
                     {
-                      width: previewWidth,
-                      height: previewHeight,
+                      width: previewSize.width,
+                      height: previewSize.height,
                     },
                   ]}
                 />
@@ -188,8 +241,8 @@ export function FilterEditScreen({ route }: Props) {
               style={[
                 styles.previewLoading,
                 {
-                  width: previewWidth,
-                  height: previewHeight,
+                  width: maxPreviewWidth,
+                  height: maxPreviewHeight,
                 },
               ]}
             >
@@ -247,7 +300,8 @@ const styles = StyleSheet.create({
   },
   filteredCaptureLayer: {
     backgroundColor: '#ffffff',
-    resizeMode: 'cover',
+    margin: 0,
+    padding: 0,
   },
   hiddenLayer: {
     opacity: 0,
@@ -255,13 +309,15 @@ const styles = StyleSheet.create({
   },
   originalImage: {
     backgroundColor: '#ffffff',
-    resizeMode: 'cover',
+    margin: 0,
+    padding: 0,
   },
   previewHeader: {
     alignItems: 'flex-start',
     flexDirection: 'row',
     gap: 12,
     justifyContent: 'space-between',
+    marginBottom: 14,
   },
   previewLoading: {
     alignItems: 'center',
@@ -269,20 +325,24 @@ const styles = StyleSheet.create({
   },
   previewPressable: {
     alignItems: 'center',
+    alignSelf: 'center',
+    margin: 0,
+    padding: 0,
   },
   previewPressed: {
     opacity: 1,
   },
   previewSection: {
+    alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderRadius: 22,
-    borderWidth: 0,
-    gap: 14,
-    padding: 14,
+    borderTopRightRadius: 22,
+    borderTopLeftRadius: 22,
+    paddingTop: 14,
     paddingBottom: 0,
   },
   previewStatusRow: {
     gap: 4,
+    width: '100%',
   },
   previewSubtitle: {
     color: '#6b7280',
