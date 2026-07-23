@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import * as ImagePicker from 'expo-image-picker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   ActivityIndicator,
@@ -10,9 +9,9 @@ import {
   Text,
   View,
 } from 'react-native';
-
 import type { RootStackParamList } from '~/screens/RootNavigator';
 import { useImageStore } from '~/utils/image/imageStore';
+import { launchImageLibraryAsync } from 'expo-image-picker';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -24,7 +23,7 @@ export function HomeScreen({ navigation }: Props) {
     try {
       setIsPickingImage(true);
 
-      const result = await ImagePicker.launchImageLibraryAsync({
+      const result = await launchImageLibraryAsync({
         mediaTypes: ['images'],
         quality: 1,
         allowsEditing: false,
@@ -68,15 +67,12 @@ export function HomeScreen({ navigation }: Props) {
       bounces={false}
     >
       <View style={styles.hero}>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>Vitiligo Channels</Text>
-        </View>
-
-        <Text style={styles.title}>Create a filtered skin image preview</Text>
-
+        <Text style={styles.title}>
+          Enhance contrast of depigmented lesions
+        </Text>
         <Text style={styles.subtitle}>
-          Upload an existing image or take a new photo, then adjust the
-          black-and-white channel filter in the editor.
+          Upload an image or take a photo, then use our custom colour filtering
+          algorithm to enhance lesion contrast in the editor
         </Text>
       </View>
 
@@ -96,7 +92,7 @@ export function HomeScreen({ navigation }: Props) {
       <View style={styles.actions}>
         <ActionCard
           title='Upload image'
-          description='Pick a photo from your library and open it in the filter editor.'
+          description='Pick an image from your library'
           icon='↥'
           onPress={pickImage}
           disabled={isPickingImage}
@@ -106,7 +102,7 @@ export function HomeScreen({ navigation }: Props) {
 
         <ActionCard
           title='Take photo'
-          description='Use the camera, then continue directly to the filter editor.'
+          description='Use camera to capture a photo'
           icon='◎'
           onPress={takePhoto}
           disabled={isPickingImage}
@@ -116,8 +112,8 @@ export function HomeScreen({ navigation }: Props) {
       <View style={styles.footerCard}>
         <Text style={styles.footerTitle}>Tip</Text>
         <Text style={styles.footerText}>
-          For consistent results, avoid harsh shadows and keep the affected area
-          centered in the frame.
+          For best results, avoid harsh shadows and keep the affected area
+          centered in the frame
         </Text>
       </View>
     </ScrollView>
