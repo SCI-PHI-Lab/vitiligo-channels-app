@@ -48,7 +48,7 @@ export function FilteredImage({
         <Shader source={bwVitiligoShader} uniforms={uniforms}>
           <ImageShader
             image={image}
-            fit='contain'
+            fit='cover'
             rect={{ x: 0, y: 0, width, height }}
           />
         </Shader>

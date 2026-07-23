@@ -133,17 +133,9 @@ export function FilterEditScreen({ route }: Props) {
       <View style={styles.previewSection}>
         <View style={styles.previewHeader}>
           <View>
-            <Text style={styles.previewTitle}>
-              {isShowingOriginal ? 'Original Image' : 'Filtered Preview'}
-            </Text>
+            <Text style={styles.previewTitle}>Filter applied</Text>
             <Text style={styles.previewSubtitle}>
-              Press and hold the image to compare with the original.
-            </Text>
-          </View>
-
-          <View style={styles.previewBadge}>
-            <Text style={styles.previewBadgeText}>
-              {isShowingOriginal ? 'Original' : 'Filtered'}
+              Press and hold the image to compare with the original
             </Text>
           </View>
         </View>
@@ -156,69 +148,59 @@ export function FilterEditScreen({ route }: Props) {
             pressed ? styles.previewPressed : null,
           ]}
         >
-          <View style={styles.previewFrame}>
-            {skiaImageUri ? (
-              <>
-                <ViewShot
-                  ref={previewRef}
-                  options={{
-                    format: 'jpg',
-                    quality: 1,
-                    result: 'tmpfile',
-                  }}
+          {skiaImageUri ? (
+            <>
+              <ViewShot
+                ref={previewRef}
+                options={{
+                  format: 'jpg',
+                  quality: 1,
+                  result: 'tmpfile',
+                }}
+                style={[
+                  styles.filteredCaptureLayer,
+                  isShowingOriginal ? styles.hiddenLayer : null,
+                ]}
+              >
+                <FilteredImage
+                  imageUri={skiaImageUri}
+                  filter={filterParams}
+                  width={previewWidth}
+                  height={previewHeight}
+                />
+              </ViewShot>
+
+              {isShowingOriginal ? (
+                <Image
+                  source={{ uri: skiaImageUri }}
                   style={[
-                    styles.filteredCaptureLayer,
+                    styles.originalImage,
                     {
                       width: previewWidth,
                       height: previewHeight,
                     },
-                    isShowingOriginal ? styles.hiddenLayer : null,
                   ]}
-                >
-                  <FilteredImage
-                    imageUri={skiaImageUri}
-                    filter={filterParams}
-                    width={previewWidth}
-                    height={previewHeight}
-                  />
-                </ViewShot>
-
-                {isShowingOriginal ? (
-                  <Image
-                    source={{ uri: skiaImageUri }}
-                    style={[
-                      styles.originalImage,
-                      {
-                        width: previewWidth,
-                        height: previewHeight,
-                      },
-                    ]}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <View
-                style={[
-                  styles.previewLoading,
-                  {
-                    width: previewWidth,
-                    height: previewHeight,
-                  },
-                ]}
-              >
-                <ActivityIndicator />
-              </View>
-            )}
-          </View>
+                />
+              ) : null}
+            </>
+          ) : (
+            <View
+              style={[
+                styles.previewLoading,
+                {
+                  width: previewWidth,
+                  height: previewHeight,
+                },
+              ]}
+            >
+              <ActivityIndicator />
+            </View>
+          )}
         </Pressable>
 
         <View style={styles.previewStatusRow}>
-          {isPreparingImage ? (
+          {isPreparingImage && (
             <Text style={styles.statusText}>Preparing image...</Text>
-          ) : (
-            <Text style={styles.statusText}>
-              {skiaImageUri ? 'Filtered image ready.' : 'Loading image...'}
-            </Text>
           )}
 
           {prepareError ? (
@@ -264,33 +246,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   filteredCaptureLayer: {
-    backgroundColor: '#000000',
+    backgroundColor: '#ffffff',
+    resizeMode: 'cover',
   },
   hiddenLayer: {
     opacity: 0,
     position: 'absolute',
   },
   originalImage: {
-    backgroundColor: '#000000',
-    resizeMode: 'contain',
-  },
-  previewBadge: {
-    backgroundColor: '#eef2ff',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  previewBadgeText: {
-    color: '#3730a3',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  previewFrame: {
-    alignItems: 'center',
-    backgroundColor: '#000000',
-    borderRadius: 18,
-    justifyContent: 'center',
-    overflow: 'hidden',
+    backgroundColor: '#ffffff',
+    resizeMode: 'cover',
   },
   previewHeader: {
     alignItems: 'flex-start',
@@ -300,22 +265,21 @@ const styles = StyleSheet.create({
   },
   previewLoading: {
     alignItems: 'center',
-    backgroundColor: '#e5e7eb',
     justifyContent: 'center',
   },
   previewPressable: {
     alignItems: 'center',
   },
   previewPressed: {
-    opacity: 0.96,
+    opacity: 1,
   },
   previewSection: {
     backgroundColor: '#ffffff',
-    borderColor: '#e5e7eb',
     borderRadius: 22,
-    borderWidth: 1,
+    borderWidth: 0,
     gap: 14,
     padding: 14,
+    paddingBottom: 0,
   },
   previewStatusRow: {
     gap: 4,
