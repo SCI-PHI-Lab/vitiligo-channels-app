@@ -1,52 +1,42 @@
 import { Asset, requestPermissionsAsync } from 'expo-media-library';
 import { isAvailableAsync, shareAsync } from 'expo-sharing';
 
-type SaveImageResult = {
-  assetId: string;
-  uri: string;
-};
-
-function assertLocalFileUri(uri: string): void {
-  if (!uri.startsWith('file://')) {
-    throw new Error(
-      `Expected a local file:// URI before saving, received: ${uri}`
-    );
+function toLocalFileUri(pathOrUri: string): string {
+  if (pathOrUri.startsWith('file://')) {
+    return pathOrUri;
   }
+
+  // ViewShot on iOS commonly returns:
+  // /private/var/mobile/.../image.jpg
+  if (pathOrUri.startsWith('/')) {
+    return `file://${pathOrUri}`;
+  }
+
+  return pathOrUri;
 }
 
-export async function requestMediaLibrarySavePermission(): Promise<void> {
+export async function saveImageToCameraRoll(imageUri: string): Promise<void> {
   const permission = await requestPermissionsAsync(true);
 
   if (permission.status !== 'granted') {
     throw new Error('Photo library save permission was not granted.');
   }
-}
 
-export async function saveImageToCameraRoll(
-  imageUri: string
-): Promise<SaveImageResult> {
-  assertLocalFileUri(imageUri);
+  const localUri = toLocalFileUri(imageUri);
 
-  await requestMediaLibrarySavePermission();
-
-  const asset = await Asset.create(imageUri);
-
-  return {
-    assetId: asset.id,
-    uri: await asset.getUri(),
-  };
+  await Asset.create(localUri);
 }
 
 export async function shareImage(imageUri: string): Promise<void> {
-  assertLocalFileUri(imageUri);
-
   const isAvailable = await isAvailableAsync();
 
   if (!isAvailable) {
     throw new Error('Sharing is not available on this device.');
   }
 
-  await shareAsync(imageUri, {
+  const localUri = toLocalFileUri(imageUri);
+
+  await shareAsync(localUri, {
     mimeType: 'image/jpeg',
     dialogTitle: 'Share filtered image',
     UTI: 'public.jpeg',
