@@ -67,26 +67,11 @@ export function HomeScreen({ navigation }: Props) {
       bounces={false}
     >
       <View style={styles.hero}>
-        <Text style={styles.title}>
-          Enhance contrast of depigmented lesions
-        </Text>
+        <Text style={styles.title}>Improve visibility of depigmented skin</Text>
         <Text style={styles.subtitle}>
-          Upload an image or take a photo, then use our custom colour filtering
-          algorithm to enhance lesion contrast in the editor
+          Upload an image or take a photo, then use our custom colour
+          decomposition algorithm to enhance melanin contrast in the editor
         </Text>
-      </View>
-
-      <View style={styles.previewCard}>
-        <View style={styles.previewImagePlaceholder}>
-          <Text style={styles.previewIcon}>◐</Text>
-        </View>
-
-        <View style={styles.previewTextContainer}>
-          <Text style={styles.previewTitle}>Ready to start</Text>
-          <Text style={styles.previewDescription}>
-            Choose a clear, well-lit image for the best preview result.
-          </Text>
-        </View>
       </View>
 
       <View style={styles.actions}>
@@ -255,19 +240,6 @@ const styles = StyleSheet.create({
   actions: {
     gap: 14,
   },
-  badge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#e0f2fe',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  badgeText: {
-    color: '#0369a1',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
   content: {
     gap: 24,
     padding: 24,
@@ -294,50 +266,6 @@ const styles = StyleSheet.create({
   hero: {
     gap: 14,
     paddingTop: 36,
-  },
-  previewCard: {
-    backgroundColor: '#ffffff',
-    borderColor: '#e5e7eb',
-    borderRadius: 26,
-    borderWidth: 1,
-    gap: 18,
-    padding: 18,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 18,
-    elevation: 4,
-  },
-  previewDescription: {
-    color: '#6b7280',
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: 'center',
-  },
-  previewIcon: {
-    color: '#0f172a',
-    fontSize: 64,
-    fontWeight: '700',
-  },
-  previewImagePlaceholder: {
-    alignItems: 'center',
-    aspectRatio: 1.45,
-    backgroundColor: '#eef2ff',
-    borderRadius: 20,
-    justifyContent: 'center',
-  },
-  previewTextContainer: {
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 8,
-  },
-  previewTitle: {
-    color: '#111827',
-    fontSize: 18,
-    fontWeight: '700',
   },
   primaryActionArrow: {
     color: '#ffffff',
