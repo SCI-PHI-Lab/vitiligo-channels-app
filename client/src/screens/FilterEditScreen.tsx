@@ -4,7 +4,9 @@ import {
   Alert,
   Button,
   Image,
+  Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   useWindowDimensions,
   View,
@@ -42,6 +44,7 @@ export function FilterEditScreen({ route }: Props) {
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isShowingOriginal, setIsShowingOriginal] = useState(false);
 
   useEffect(() => {
     let isCurrent = true;
@@ -126,60 +129,102 @@ export function FilterEditScreen({ route }: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, gap: 20 }}>
-      <View>
-        <Text>Original</Text>
-        <Image
-          source={{ uri: imageUri }}
-          style={{
-            width: '100%',
-            height: 320,
-            resizeMode: 'contain',
-            backgroundColor: '#eee',
-          }}
-        />
-      </View>
+    <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.previewSection}>
+        <View style={styles.previewHeader}>
+          <View>
+            <Text style={styles.previewTitle}>
+              {isShowingOriginal ? 'Original Image' : 'Filtered Preview'}
+            </Text>
+            <Text style={styles.previewSubtitle}>
+              Press and hold the image to compare with the original.
+            </Text>
+          </View>
 
-      <View>
-        <Text>Filtered Preview</Text>
+          <View style={styles.previewBadge}>
+            <Text style={styles.previewBadgeText}>
+              {isShowingOriginal ? 'Original' : 'Filtered'}
+            </Text>
+          </View>
+        </View>
 
-        <ViewShot
-          ref={previewRef}
-          options={{
-            format: 'jpg',
-            quality: 1,
-            result: 'tmpfile',
-          }}
-          style={{
-            width: previewWidth,
-            height: previewHeight,
-            backgroundColor: 'black',
-          }}
+        <Pressable
+          onPressIn={() => setIsShowingOriginal(true)}
+          onPressOut={() => setIsShowingOriginal(false)}
+          style={({ pressed }) => [
+            styles.previewPressable,
+            pressed ? styles.previewPressed : null,
+          ]}
         >
-          {skiaImageUri ? (
-            <FilteredImage
-              imageUri={skiaImageUri}
-              filter={filterParams}
-              width={previewWidth}
-              height={previewHeight}
-            />
-          ) : (
-            <View
-              style={{
-                width: previewWidth,
-                height: previewHeight,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#eee',
-              }}
-            >
-              <ActivityIndicator />
-            </View>
-          )}
-        </ViewShot>
+          <View style={styles.previewFrame}>
+            {skiaImageUri ? (
+              <>
+                <ViewShot
+                  ref={previewRef}
+                  options={{
+                    format: 'jpg',
+                    quality: 1,
+                    result: 'tmpfile',
+                  }}
+                  style={[
+                    styles.filteredCaptureLayer,
+                    {
+                      width: previewWidth,
+                      height: previewHeight,
+                    },
+                    isShowingOriginal ? styles.hiddenLayer : null,
+                  ]}
+                >
+                  <FilteredImage
+                    imageUri={skiaImageUri}
+                    filter={filterParams}
+                    width={previewWidth}
+                    height={previewHeight}
+                  />
+                </ViewShot>
 
-        {isPreparingImage ? <Text>Preparing image...</Text> : null}
-        {prepareError ? <Text>{prepareError}</Text> : null}
+                {isShowingOriginal ? (
+                  <Image
+                    source={{ uri: skiaImageUri }}
+                    style={[
+                      styles.originalImage,
+                      {
+                        width: previewWidth,
+                        height: previewHeight,
+                      },
+                    ]}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <View
+                style={[
+                  styles.previewLoading,
+                  {
+                    width: previewWidth,
+                    height: previewHeight,
+                  },
+                ]}
+              >
+                <ActivityIndicator />
+              </View>
+            )}
+          </View>
+        </Pressable>
+
+        <View style={styles.previewStatusRow}>
+          {isPreparingImage ? (
+            <Text style={styles.statusText}>Preparing image...</Text>
+          ) : (
+            <Text style={styles.statusText}>
+              {skiaImageUri ? 'Filtered image ready.' : 'Loading image...'}
+            </Text>
+          )}
+
+          {prepareError ? (
+            <Text style={styles.errorText}>{prepareError}</Text>
+          ) : null}
+        </View>
       </View>
 
       <VitiligoFilterControls
@@ -187,7 +232,7 @@ export function FilterEditScreen({ route }: Props) {
         setFilterParams={setFilterParams}
       />
 
-      <View style={{ gap: 12 }}>
+      <View style={styles.actions}>
         <Button
           title={isSaving ? 'Saving...' : 'Save to Camera Roll'}
           onPress={handleSave}
@@ -203,3 +248,92 @@ export function FilterEditScreen({ route }: Props) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  actions: {
+    gap: 12,
+  },
+  content: {
+    gap: 20,
+    padding: 16,
+    paddingBottom: 32,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  filteredCaptureLayer: {
+    backgroundColor: '#000000',
+  },
+  hiddenLayer: {
+    opacity: 0,
+    position: 'absolute',
+  },
+  originalImage: {
+    backgroundColor: '#000000',
+    resizeMode: 'contain',
+  },
+  previewBadge: {
+    backgroundColor: '#eef2ff',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  previewBadgeText: {
+    color: '#3730a3',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  previewFrame: {
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    borderRadius: 18,
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  previewHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+  },
+  previewLoading: {
+    alignItems: 'center',
+    backgroundColor: '#e5e7eb',
+    justifyContent: 'center',
+  },
+  previewPressable: {
+    alignItems: 'center',
+  },
+  previewPressed: {
+    opacity: 0.96,
+  },
+  previewSection: {
+    backgroundColor: '#ffffff',
+    borderColor: '#e5e7eb',
+    borderRadius: 22,
+    borderWidth: 1,
+    gap: 14,
+    padding: 14,
+  },
+  previewStatusRow: {
+    gap: 4,
+  },
+  previewSubtitle: {
+    color: '#6b7280',
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 3,
+  },
+  previewTitle: {
+    color: '#111827',
+    fontSize: 19,
+    fontWeight: '700',
+  },
+  statusText: {
+    color: '#6b7280',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+});
