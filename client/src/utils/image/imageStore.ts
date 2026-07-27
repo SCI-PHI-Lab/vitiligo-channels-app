@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import {
   BWVitiligoFilterParams,
   DEFAULT_BW_VITILIGO_FILTER,
-} from '~/utils/image/vitiligoFilterModel';
+} from '~/types/vitiligoFilterModel';
 
 type ImageState = {
   inputImageUri: string | null;
@@ -13,6 +13,7 @@ type ImageState = {
   setSelectedFilter: (filter: BWVitiligoFilterParams) => void;
 };
 
+/** Zustand store for managing the state of the current filter and image being used */
 export const useImageStore = create<ImageState>(set => ({
   inputImageUri: null,
   processedImageUri: null,

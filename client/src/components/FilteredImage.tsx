@@ -6,27 +6,33 @@ import {
   Shader,
   useImage,
 } from '@shopify/react-native-skia';
-import type { BWVitiligoFilterParams } from '~/utils/image/vitiligoFilterModel';
+import type { BWVitiligoFilterParams } from '~/types/vitiligoFilterModel';
 import { bwVitiligoShader } from '~/utils/shader/bwVitiligoShader';
 
-type Props = {
+type FilteredImageProps = {
   imageUri: string;
   filter: BWVitiligoFilterParams;
   width: number;
   height: number;
 };
 
-export function FilteredImage({ imageUri, filter, width, height }: Props) {
+/** Renders a Skia Canvas image after applying the black-and-white vitiligo shader to it */
+export function FilteredImage({
+  imageUri,
+  filter,
+  width,
+  height,
+}: FilteredImageProps) {
   const image = useImage(imageUri);
 
-  const uniforms = useMemo(
+  const uniforms: BWVitiligoFilterParams = useMemo(
     () => ({
-      redWeight: filter.red / 100,
-      yellowWeight: filter.yellow / 100,
-      greenWeight: filter.green / 100,
-      cyanWeight: filter.cyan / 100,
-      blueWeight: filter.blue / 100,
-      magentaWeight: filter.magenta / 100,
+      redWeight: filter.redWeight / 100,
+      yellowWeight: filter.yellowWeight / 100,
+      greenWeight: filter.greenWeight / 100,
+      cyanWeight: filter.cyanWeight / 100,
+      blueWeight: filter.blueWeight / 100,
+      magentaWeight: filter.magentaWeight / 100,
       lightnessRatio: filter.lightnessRatio,
     }),
     [filter]

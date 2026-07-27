@@ -9,14 +9,14 @@ import {
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import type { RootStackParamList } from '~/RootNavigator';
+import type { RootStackParamList } from '~/screens/RootNavigator';
 import { VitiligoFilterControls } from '~/components/VitiligoFilterControls';
 
 import {
   DEFAULT_BW_VITILIGO_FILTER,
   type BWVitiligoFilterParams,
   PREVIEW_MAX_SIZE,
-} from '~/utils/image/vitiligoFilterModel';
+} from '~/types/vitiligoFilterModel';
 import { normalizeImage } from '~/utils/image/normalizeImage';
 import { FilteredImage } from '~/components/FilteredImage';
 
@@ -107,7 +107,10 @@ export function FilterEditScreen({ route }: Props) {
         {prepareError ? <Text>{prepareError}</Text> : null}
       </View>
 
-      <VitiligoFilterControls value={filterParams} onChange={setFilterParams} />
+      <VitiligoFilterControls
+        filterParams={filterParams}
+        setFilterParams={setFilterParams}
+      />
     </ScrollView>
   );
 }
