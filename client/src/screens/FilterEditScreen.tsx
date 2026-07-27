@@ -4,7 +4,9 @@ import {
   Alert,
   Button,
   Image,
+  Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   useWindowDimensions,
   View,
@@ -24,24 +26,31 @@ import { saveImageToCameraRoll, shareImage } from '~/utils/image/exportImage';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Edit'>;
 
+type PreviewSize = {
+  width: number;
+  height: number;
+};
+
 export function FilterEditScreen({ route }: Props) {
   const { imageUri } = route.params;
   const { width: screenWidth } = useWindowDimensions();
 
   const previewRef = useRef<ViewShotRef>(null);
 
-  const previewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
-  const previewHeight = 420;
+  const maxPreviewWidth = Math.min(screenWidth - 32, PREVIEW_MAX_SIZE);
+  const maxPreviewHeight = PREVIEW_MAX_SIZE;
 
   const [filterParams, setFilterParams] = useState<BWVitiligoFilterParams>(
     DEFAULT_BW_VITILIGO_FILTER
   );
 
   const [skiaImageUri, setSkiaImageUri] = useState<string | null>(null);
+  const [previewSize, setPreviewSize] = useState<PreviewSize | null>(null);
   const [prepareError, setPrepareError] = useState<string | null>(null);
   const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const [isShowingOriginal, setIsShowingOriginal] = useState(false);
 
   useEffect(() => {
     let isCurrent = true;
@@ -50,6 +59,7 @@ export function FilterEditScreen({ route }: Props) {
       try {
         setIsPreparingImage(true);
         setPrepareError(null);
+        setPreviewSize(null);
 
         const normalizedImage = await normalizeImage(imageUri, {
           maxWidth: PREVIEW_MAX_SIZE,
@@ -78,6 +88,48 @@ export function FilterEditScreen({ route }: Props) {
       isCurrent = false;
     };
   }, [imageUri]);
+
+  useEffect(() => {
+    if (!skiaImageUri) {
+      return;
+    }
+
+    let isCurrent = true;
+
+    Image.getSize(
+      skiaImageUri,
+      (width, height) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        const scale = Math.min(
+          maxPreviewWidth / width,
+          maxPreviewHeight / height,
+          1
+        );
+
+        setPreviewSize({
+          width: Math.round(width * scale),
+          height: Math.round(height * scale),
+        });
+      },
+      () => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setPreviewSize({
+          width: maxPreviewWidth,
+          height: maxPreviewHeight,
+        });
+      }
+    );
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [skiaImageUri, maxPreviewWidth, maxPreviewHeight]);
 
   const captureFilteredPreview = async (): Promise<string> => {
     if (!previewRef.current) {
@@ -126,60 +178,88 @@ export function FilterEditScreen({ route }: Props) {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16, gap: 20 }}>
-      <View>
-        <Text>Original</Text>
-        <Image
-          source={{ uri: imageUri }}
-          style={{
-            width: '100%',
-            height: 320,
-            resizeMode: 'contain',
-            backgroundColor: '#eee',
-          }}
-        />
-      </View>
+    <ScrollView contentContainerStyle={styles.content}>
+      <View style={styles.previewSection}>
+        <View style={styles.previewHeader}>
+          <View>
+            <Text style={styles.previewTitle}>Filter applied</Text>
+            <Text style={styles.previewSubtitle}>
+              Press and hold the image to compare with the original
+            </Text>
+          </View>
+        </View>
 
-      <View>
-        <Text>Filtered Preview</Text>
-
-        <ViewShot
-          ref={previewRef}
-          options={{
-            format: 'jpg',
-            quality: 1,
-            result: 'tmpfile',
-          }}
-          style={{
-            width: previewWidth,
-            height: previewHeight,
-            backgroundColor: 'black',
-          }}
+        <Pressable
+          onPressIn={() => setIsShowingOriginal(true)}
+          onPressOut={() => setIsShowingOriginal(false)}
+          style={({ pressed }) => [
+            styles.previewPressable,
+            pressed ? styles.previewPressed : null,
+          ]}
         >
-          {skiaImageUri ? (
-            <FilteredImage
-              imageUri={skiaImageUri}
-              filter={filterParams}
-              width={previewWidth}
-              height={previewHeight}
-            />
+          {skiaImageUri && previewSize ? (
+            <>
+              <ViewShot
+                ref={previewRef}
+                options={{
+                  format: 'jpg',
+                  quality: 1,
+                  result: 'tmpfile',
+                }}
+                style={[
+                  styles.filteredCaptureLayer,
+                  {
+                    width: previewSize.width,
+                    height: previewSize.height,
+                  },
+                  isShowingOriginal ? styles.hiddenLayer : null,
+                ]}
+              >
+                <FilteredImage
+                  imageUri={skiaImageUri}
+                  filter={filterParams}
+                  width={previewSize.width}
+                  height={previewSize.height}
+                />
+              </ViewShot>
+
+              {isShowingOriginal ? (
+                <Image
+                  source={{ uri: skiaImageUri }}
+                  style={[
+                    styles.originalImage,
+                    {
+                      width: previewSize.width,
+                      height: previewSize.height,
+                    },
+                  ]}
+                />
+              ) : null}
+            </>
           ) : (
             <View
-              style={{
-                width: previewWidth,
-                height: previewHeight,
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#eee',
-              }}
+              style={[
+                styles.previewLoading,
+                {
+                  width: maxPreviewWidth,
+                  height: maxPreviewHeight,
+                },
+              ]}
             >
               <ActivityIndicator />
             </View>
           )}
-        </ViewShot>
+        </Pressable>
 
-        {isPreparingImage ? <Text>Preparing image...</Text> : null}
-        {prepareError ? <Text>{prepareError}</Text> : null}
+        <View style={styles.previewStatusRow}>
+          {isPreparingImage && (
+            <Text style={styles.statusText}>Preparing image...</Text>
+          )}
+
+          {prepareError ? (
+            <Text style={styles.errorText}>{prepareError}</Text>
+          ) : null}
+        </View>
       </View>
 
       <VitiligoFilterControls
@@ -187,7 +267,7 @@ export function FilterEditScreen({ route }: Props) {
         setFilterParams={setFilterParams}
       />
 
-      <View style={{ gap: 12 }}>
+      <View style={styles.actions}>
         <Button
           title={isSaving ? 'Saving...' : 'Save to Camera Roll'}
           onPress={handleSave}
@@ -203,3 +283,81 @@ export function FilterEditScreen({ route }: Props) {
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  actions: {
+    gap: 12,
+  },
+  content: {
+    gap: 20,
+    padding: 16,
+    paddingBottom: 32,
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  filteredCaptureLayer: {
+    backgroundColor: '#ffffff',
+    margin: 0,
+    padding: 0,
+  },
+  hiddenLayer: {
+    opacity: 0,
+    position: 'absolute',
+  },
+  originalImage: {
+    backgroundColor: '#ffffff',
+    margin: 0,
+    padding: 0,
+  },
+  previewHeader: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: 12,
+    justifyContent: 'space-between',
+    marginBottom: 14,
+  },
+  previewLoading: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewPressable: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    margin: 0,
+    padding: 0,
+  },
+  previewPressed: {
+    opacity: 1,
+  },
+  previewSection: {
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderTopRightRadius: 22,
+    borderTopLeftRadius: 22,
+    paddingTop: 14,
+    paddingBottom: 0,
+  },
+  previewStatusRow: {
+    gap: 4,
+    width: '100%',
+  },
+  previewSubtitle: {
+    color: '#6b7280',
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 3,
+  },
+  previewTitle: {
+    color: '#111827',
+    fontSize: 19,
+    fontWeight: '700',
+  },
+  statusText: {
+    color: '#6b7280',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+});
