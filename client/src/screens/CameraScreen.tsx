@@ -113,7 +113,11 @@ export function CameraScreen({ navigation }: Props) {
   }
 
   if (!device) {
-    return <Text>No camera found.</Text>;
+    return (
+      <View style={styles.centered}>
+        <Text>No back camera found.</Text>
+      </View>
+    );
   }
 
   return (
